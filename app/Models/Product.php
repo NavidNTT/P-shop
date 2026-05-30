@@ -5,6 +5,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 
 class Product extends Model
 {
@@ -35,4 +36,15 @@ protected $casts = [
     {
         return $this->hasMany(ProductImage::class);
     }
+    public function getThumbnailUrlAttribute(): string
+{
+    $image = $this->images()->first();
+
+    if (!$image) {
+        // تصویر پیش‌فرض اگر محصول عکس نداشت
+        return 'https://via.placeholder.com/600x400?text=No+Image';
+    }
+
+    return Storage::url($image->path);
+}
 }

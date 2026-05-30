@@ -73,10 +73,11 @@ class ProductResource extends Resource
                     ->prefix('$'),
 
                 TextInput::make('stock')
-                    ->label('Stock')
+                    ->label('Stock (Toman)')
                     ->numeric()
+                    ->integer()
                     ->required()
-                    ->default(0),
+                    ->minValue(0),
 
                 Toggle::make('is_active')
                     ->label('Active')

@@ -2,72 +2,147 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Section;
 use App\Filament\Resources\ProductResource\Pages;
-use App\Filament\Resources\ProductResource\RelationManagers;
 use App\Models\Product;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Str;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\FileUpload;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\IconColumn;
 
 class ProductResource extends Resource
 {
     protected static ?string $model = Product::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
 
-public static function form(Form $form): Form
-{
-    return $form->schema([
-        // بخش اطلاعات اصلی (کدهای قبلی...)
-        Section::make('Product Information')
+    protected static ?string $navigationGroup = 'Catalog';
+
+    protected static ?string $navigationLabel = 'Products';
+
+    protected static ?string $modelLabel = 'Product';
+
+    protected static ?string $pluralModelLabel = 'Products';
+
+    public static function form(Form $form): Form
+    {
+        return $form
             ->schema([
-                Forms\Components\Select::make('category_id')
+                Select::make('category_id')
+                    ->label('Category')
                     ->relationship('category', 'name')
+                    ->searchable()
+                    ->preload()
                     ->required(),
-                Forms\Components\TextInput::make('name')
+
+                TextInput::make('name')
+                    ->label('Product Name')
                     ->required()
+                    ->maxLength(255)
                     ->live(onBlur: true)
-                    ->afterStateUpdated(fn ($state, callable $set) => $set('slug', \Illuminate\Support\Str::slug($state))),
-                Forms\Components\TextInput::make('slug')->required(),
-                Forms\Components\TextInput::make('price')->numeric()->required(),
-                Forms\Components\TextInput::make('stock')->numeric()->required(),
-                Forms\Components\Toggle::make('is_active')->default(true),
-            ])->columns(2),
+                    ->afterStateUpdated(function (Set $set, ?string $state) {
+                        $set('slug', Str::slug($state));
+                    }),
 
-        // بخش جدید برای آپلود تصاویر
-        Section::make('Product Images')
-            ->schema([
-                FileUpload::make('images') // نام فیلد در فرم
-                    ->relationship('images', 'path') // ایجاد رابطه خودکار با جدول product_images
-                    ->multiple() // قابلیت انتخاب چند فایل
-                    ->directory('products') // پوشه‌ای که عکس‌ها در آن ذخیره می‌شوند
-                    ->image() // فقط اجازه آپلود عکس
-                    ->reorderable() // قابلیت جابجایی ترتیب عکس‌ها
+                TextInput::make('slug')
+                    ->label('Slug')
+                    ->required()
+                    ->unique(ignoreRecord: true)
+                    ->maxLength(255),
+
+                Textarea::make('description')
+                    ->label('Description')
+                    ->rows(5)
                     ->columnSpanFull(),
-            ])
-    ]);
-}
 
-public static function table(Table $table): Table
-{
-    return $table
-        ->columns([
-            // اضافه کردن ستون عکس در ابتدای لیست
-            Tables\Columns\ImageColumn::make('images.path')
-                ->label('Image')
-                ->circular() // نمایش به صورت دایره‌ای
-                ->limit(1), // فقط اولین عکس را نشان بده
-            
-            Tables\Columns\TextColumn::make('name')->searchable(),
-            // بقیه ستون‌ها...
-        ]);
-}
+                TextInput::make('price')
+                    ->label('Price')
+                    ->numeric()
+                    ->required()
+                    ->prefix('$'),
+
+                TextInput::make('stock')
+                    ->label('Stock')
+                    ->numeric()
+                    ->required()
+                    ->default(0),
+
+                Toggle::make('is_active')
+                    ->label('Active')
+                    ->default(true),
+
+                Repeater::make('images')
+                    ->label('Product Images')
+                    ->relationship('images')
+                    ->schema([
+                        FileUpload::make('path')
+                            ->label('Image')
+                            ->image()
+                            ->directory('products')
+                            ->disk('public')
+                            ->required(),
+                    ])
+                    ->defaultItems(0)
+                    ->collapsible()
+                    ->addActionLabel('Add Image')
+                    ->grid(2)
+                    ->columnSpanFull(),
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('name')
+                    ->label('Product Name')
+                    ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('category.name')
+                    ->label('Category')
+                    ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('price')
+                    ->label('Price')
+                    ->money('USD')
+                    ->sortable(),
+
+                TextColumn::make('stock')
+                    ->label('Stock')
+                    ->sortable(),
+
+                IconColumn::make('is_active')
+                    ->label('Active')
+                    ->boolean(),
+
+                TextColumn::make('created_at')
+                    ->label('Created At')
+                    ->dateTime('Y-m-d H:i')
+                    ->sortable(),
+            ])
+            ->filters([
+                //
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\DeleteBulkAction::make(),
+            ]);
+    }
 
     public static function getRelations(): array
     {

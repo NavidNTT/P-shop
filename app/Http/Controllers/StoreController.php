@@ -21,37 +21,62 @@ class StoreController extends Controller
         return view('welcome', compact('products', 'categories'));
     }
 
-    public function products(Request $request)
-    {
-        $categories = Category::whereNull('parent_id')
-            ->with('children')
-            ->get();
+public function products(Request $request)
+{
+    $categories = Category::whereNull('parent_id')
+        ->with('children')
+        ->get();
 
-        $query = Product::query()
-            ->where('is_active', true)
-            ->with(['images', 'category'])
-            ->latest();
+    $query = Product::query()
+        ->where('is_active', true)
+        ->with(['images', 'category']);
 
-        if ($request->filled('category')) {
-            $categorySlug = $request->category;
+    // category filter (parent + children)
+    if ($request->filled('category')) {
+        $categorySlug = $request->category;
 
-            $category = Category::where('slug', $categorySlug)->first();
+        $category = Category::where('slug', $categorySlug)->first();
 
-            if ($category) {
-                $categoryIds = collect([$category->id]);
+        if ($category) {
+            $categoryIds = collect([$category->id]);
 
-                $childrenIds = Category::where('parent_id', $category->id)->pluck('id');
+            $childrenIds = Category::where('parent_id', $category->id)->pluck('id');
 
-                $categoryIds = $categoryIds->merge($childrenIds);
+            $categoryIds = $categoryIds->merge($childrenIds);
 
-                $query->whereIn('category_id', $categoryIds);
-            }
+            $query->whereIn('category_id', $categoryIds);
         }
-
-        $products = $query->paginate(12)->withQueryString();
-
-        return view('products.index', compact('products', 'categories'));
     }
+
+    // search
+    if ($request->filled('q')) {
+        $q = trim($request->q);
+
+        $query->where(function ($sub) use ($q) {
+            $sub->where('name', 'like', "%{$q}%")
+                ->orWhere('slug', 'like', "%{$q}%");
+            // اگر description هم داری:
+            // ->orWhere('description', 'like', "%{$q}%");
+        });
+    }
+
+    // sort
+    $sort = $request->get('sort', 'newest');
+
+    if ($sort === 'price_asc') {
+        $query->orderBy('price', 'asc');
+    } elseif ($sort === 'price_desc') {
+        $query->orderBy('price', 'desc');
+    } else {
+        // newest (default)
+        $query->latest();
+    }
+
+    $products = $query->paginate(12)->withQueryString();
+
+    return view('products.index', compact('products', 'categories', 'sort'));
+}
+
 
     public function show(Product $product)
     {

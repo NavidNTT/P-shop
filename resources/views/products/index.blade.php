@@ -1,6 +1,23 @@
 @extends('layouts.store')
 
 @section('content')
+<form method="GET" action="{{ route('products.index') }}" class="row g-2 mb-3">
+    @if(request()->filled('category'))
+        <input type="hidden" name="category" value="{{ request('category') }}">
+    @endif
+
+    <div class="col-md-6">
+        <input type="text" name="q" value="{{ request('q') }}" class="form-control" placeholder="جستجو در محصولات...">
+    </div>
+
+    <div class="col-md-4">
+        <select name="sort" class="form-select" onchange="this.form.submit()">
+            <option value="newest" @selected(request('sort', 'newest') === 'newest')>جدیدترین</option>
+            <option value="price_asc" @selected(request('sort') === 'price_asc')>ارزان‌ترین</option>
+            <option value="price_desc" @selected(request('sort') === 'price_desc')>گران‌ترین</option>
+        </select>
+    </div>
+
     <div class="flex flex-col lg:flex-row gap-6">
         {{-- Sidebar دسته‌بندی‌ها --}}
         <aside class="w-full lg:w-1/4">
@@ -8,31 +25,31 @@
                 <h2 class="font-bold text-lg mb-4">دسته‌بندی‌ها</h2>
 
                 <div class="space-y-3">
-                    <a
-                        href="{{ route('products.index') }}"
-                        class="block text-sm {{ request('category') ? 'text-gray-700' : 'text-blue-600 font-bold' }}"
-                    >
-                        همه محصولات
-                    </a>
+<a
+    href="{{ route('products.index', request()->except('category', 'page')) }}"
+    class="block text-sm {{ request('category') ? 'text-gray-700' : 'text-blue-600 font-bold' }}"
+>
+    همه محصولات
+</a>
 
                     @foreach($categories as $category)
                         <div>
-                            <a
-                                href="{{ route('products.index', ['category' => $category->slug]) }}"
-                                class="block text-sm font-semibold {{ request('category') === $category->slug ? 'text-blue-600' : 'text-gray-800' }}"
-                            >
-                                {{ $category->name }}
-                            </a>
+<a
+    href="{{ route('products.index', array_merge(request()->except('page'), ['category' => $category->slug])) }}"
+    class="block text-sm font-semibold {{ request('category') === $category->slug ? 'text-blue-600' : 'text-gray-800' }}"
+>
+    {{ $category->name }}
+</a>
 
                             @if($category->children->count())
                                 <div class="mt-2 mr-4 space-y-2">
                                     @foreach($category->children as $child)
-                                        <a
-                                            href="{{ route('products.index', ['category' => $child->slug]) }}"
-                                            class="block text-sm {{ request('category') === $child->slug ? 'text-blue-600 font-bold' : 'text-gray-600' }}"
-                                        >
-                                            - {{ $child->name }}
-                                        </a>
+<a
+    href="{{ route('products.index', array_merge(request()->except('page'), ['category' => $child->slug])) }}"
+    class="block text-sm {{ request('category') === $child->slug ? 'text-blue-600 font-bold' : 'text-gray-600' }}"
+>
+    - {{ $child->name }}
+</a>
                                     @endforeach
                                 </div>
                             @endif
@@ -101,7 +118,12 @@
                 </div>
             @else
                 <div class="bg-white rounded shadow p-6">
-                    <p class="text-gray-700">محصولی برای این دسته‌بندی پیدا نشد.</p>
+                    <p class="text-gray-700">
+    محصولی یافت نشد.
+    @if(request('q'))
+        <span class="text-gray-500">عبارت جستجو: "{{ request('q') }}"</span>
+    @endif
+</p>
                 </div>
             @endif
         </section>

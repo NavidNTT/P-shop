@@ -42,6 +42,17 @@
                 </div>
             @endif
         </div>
+        @if(session('success'))
+    <div class="mb-6 rounded-lg bg-green-100 px-4 py-3 text-green-700">
+        {{ session('success') }}
+    </div>
+@endif
+
+@if(session('error'))
+    <div class="mb-6 rounded-lg bg-red-100 px-4 py-3 text-red-700">
+        {{ session('error') }}
+    </div>
+@endif
 
         {{-- اطلاعات محصول --}}
         <div>
@@ -82,19 +93,19 @@
                 </div>
             @endif
 
-            {{-- دکمه سبد خرید: در فاز ۴ واقعی می‌کنیم --}}
-            <div class="mt-6">
-                <button
-                    type="button"
-                    class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded disabled:opacity-50"
-                    @disabled($product->stock <= 0)
-                >
-                    افزودن به سبد خرید
-                </button>
-                <p class="text-xs text-gray-500 mt-2">
-                    (سبد خرید در فاز ۴ پیاده‌سازی می‌شود)
-                </p>
-            </div>
-        </div>
-    </div>
+          
+@if($product->stock > 0)
+    <form action="{{ route('cart.add', $product) }}" method="POST">
+        @csrf
+        <button type="submit"
+                class="inline-flex items-center rounded-lg bg-blue-600 px-6 py-3 text-white hover:bg-blue-700">
+            افزودن به سبد خرید
+        </button>
+    </form>
+@else
+    <button disabled
+            class="inline-flex items-center rounded-lg bg-gray-400 px-6 py-3 text-white cursor-not-allowed">
+        ناموجود
+    </button>
+@endif
 @endsection

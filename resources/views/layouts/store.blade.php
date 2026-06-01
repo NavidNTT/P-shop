@@ -12,12 +12,26 @@
         <div class="container mx-auto px-4 py-4 flex items-center justify-between">
             <div class="flex items-center gap-6">
                 <a href="{{ route('home') }}" class="text-xl font-bold">فروشگاه آنلاین</a>
+                <a href="{{ route('cart.index') }}" class="hover:text-blue-600">سبد خرید</a>
 
                 <div class="flex items-center gap-4 text-sm">
                     <a href="{{ route('home') }}" class="hover:text-blue-600">خانه</a>
                     <a href="{{ route('products.index') }}" class="hover:text-blue-600">محصولات</a>
                 </div>
             </div>
+            @php
+    $cartCount = collect(session('cart', []))->sum('quantity');
+@endphp
+
+<a href="{{ route('cart.index') }}" class="hover:text-blue-600">
+    سبد خرید
+    @if($cartCount > 0)
+        <span class="mr-1 inline-flex items-center justify-center rounded-full bg-blue-600 px-2 py-0.5 text-xs text-white">
+            {{ $cartCount }}
+        </span>
+    @endif
+</a>
+
 
             <div class="flex items-center gap-3 text-sm">
                 @guest
@@ -27,18 +41,14 @@
                     </a>
                 @endguest
 
-                @auth
-                    <span class="text-gray-600">
-                        {{ auth()->user()->name }}
-                    </span>
+@auth
+    <span class="text-sm text-gray-700">{{ auth()->user()->name }}</span>
 
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="text-red-600 hover:underline">
-                            خروج
-                        </button>
-                    </form>
-                @endauth
+    <form method="POST" action="{{ route('logout') }}">
+        @csrf
+        <button type="submit" class="hover:text-red-600">خروج</button>
+    </form>
+@endauth
             </div>
         </div>
     </nav>

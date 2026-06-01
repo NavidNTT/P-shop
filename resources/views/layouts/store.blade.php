@@ -43,6 +43,7 @@
 
 @auth
     <span class="text-sm text-gray-700">{{ auth()->user()->name }}</span>
+    <a href="{{ route('profile.edit') }}">پروفایل من</a>
 
     <form method="POST" action="{{ route('logout') }}">
         @csrf

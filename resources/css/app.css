@@ -1,3 +1,155 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ========== Base typography & direction ========== */
+@layer base {
+    html {
+        direction: rtl;
+        text-align: right;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+            sans-serif;
+        background-color: #f3f4f6; /* bg-gray-100 */
+        color: #185ae7; /* text-gray-900 */
+    }
+
+    body {
+        @apply bg-gray-100 text-gray-800;
+        font-family: 'Vazirmatn', ui-sans-serif, system-ui, -apple-system, sans-serif;
+        @apply bg-gray-50 text-gray-900;
+    }
+
+    a {
+        @apply transition-colors duration-150;
+    }
+}
+
+/* ========== Layout helpers ========== */
+@layer components {
+    /* container max width harmonized with store layout */
+    .app-container {
+        @apply max-w-6xl mx-auto px-4 sm:px-6 lg:px-8;
+    }
+
+    /* Generic card used across pages */
+    .app-card {
+        @apply bg-white rounded-2xl shadow-sm ring-1 ring-gray-100;
+    }
+
+    .app-card-section {
+        @apply border-b border-gray-100 px-5 py-4;
+    }
+
+    /* Buttons – base, primary, secondary */
+    .btn {
+        @apply inline-flex items-center justify-center rounded-lg text-sm font-medium focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+    }
+
+    .btn-primary {
+        @apply btn bg-indigo-600 text-white hover:bg-indigo-700 focus-visible:ring-indigo-500 focus-visible:ring-offset-gray-50 px-4 py-2;
+    }
+
+    .btn-secondary {
+        @apply btn border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 focus-visible:ring-indigo-500 focus-visible:ring-offset-gray-50 px-4 py-2;
+    }
+
+    .btn-danger {
+        @apply btn bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500 focus-visible:ring-offset-gray-50 px-4 py-2;
+    }
+
+    /* Table */
+    .app-table {
+        @apply min-w-full divide-y divide-gray-100;
+    }
+
+    .app-table thead {
+        @apply bg-gray-50;
+    }
+
+    .app-table th {
+        @apply px-4 py-3 text-right text-xs font-semibold text-gray-500;
+    }
+
+    .app-table td {
+        @apply px-4 py-4 text-sm text-gray-700;
+    }
+
+    /* Status badges */
+    .badge {
+        @apply inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium;
+    }
+
+    .badge-success {
+        @apply badge bg-green-100 text-green-800;
+    }
+
+    .badge-danger {
+        @apply badge bg-red-100 text-red-800;
+    }
+
+    .badge-warning {
+        @apply badge bg-yellow-100 text-yellow-800;
+    }
+
+    .badge-info {
+        @apply badge bg-blue-100 text-blue-800;
+    }
+
+    .badge-muted {
+        @apply badge bg-gray-100 text-gray-700;
+    }
+
+    /* Alert boxes */
+    .alert {
+        @apply rounded-xl border px-4 py-3 text-sm flex items-start gap-3;
+    }
+
+    .alert-success {
+        @apply alert border-green-100 bg-green-50 text-green-800;
+    }
+
+    .alert-danger {
+        @apply alert border-red-100 bg-red-50 text-red-800;
+    }
+
+    .alert-warning {
+        @apply alert border-yellow-100 bg-yellow-50 text-yellow-800;
+    }
+
+    .alert-info {
+        @apply alert border-blue-100 bg-blue-50 text-blue-800;
+    }
+}
+
+/* ========== Pagination tweaks (Laravel default) ========== */
+@layer components {
+    .pagination {
+        @apply flex gap-1 justify-center text-sm;
+    }
+
+    .pagination li span,
+    .pagination li a {
+        @apply inline-flex items-center justify-center min-w-[2.25rem] h-9 rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50;
+    }
+
+    .pagination li span[aria-current='page'],
+    .pagination li span.bg-indigo-50,
+    .pagination li a.bg-indigo-50 {
+        @apply border-indigo-500 bg-indigo-50 text-indigo-600 font-semibold;
+    }
+
+    .pagination li.disabled span {
+        @apply text-gray-400 bg-gray-50 cursor-not-allowed;
+    }
+        .btn-primary {
+        @apply inline-flex items-center justify-center px-4 py-2 bg-indigo-600 border border-transparent rounded-lg font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm active:scale-95;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-300 rounded-lg font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 shadow-sm;
+    }
+
+    .app-card {
+        @apply bg-white border border-gray-100 shadow-sm rounded-2xl overflow-hidden;
+    }
+}

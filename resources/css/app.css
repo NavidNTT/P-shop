@@ -133,8 +133,8 @@
     }
 
     .pagination li span[aria-current='page'],
-    .pagination li span.bg-indigo-50,
-    .pagination li a.bg-indigo-50 {
+    .pagination li span[aria-current='true'],
+    .pagination .active {
         @apply border-indigo-500 bg-indigo-50 text-indigo-600 font-semibold;
     }
 
